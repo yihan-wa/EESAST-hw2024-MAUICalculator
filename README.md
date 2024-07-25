@@ -1,10 +1,10 @@
 # EESAST-hw2024-MAUICalculator 作业
 
-------
+---
 
 2024 THU EESAST 软件部暑期培训 MAUI作业
 
-------
+---
 
 ## 题目及要求
 
@@ -20,7 +20,8 @@
 
 GitHub 提交
 
-- fork 仓库：https://github.com/Shawqeem/EESAST-hw2023-MAUI-calculator 到个人仓库，按要求修改好后，从个人仓库提pr到原本的仓库，pr信息填写为：`calculator_姓名_班级` （如：`calculator_大佬_无30`）。
+- fork 仓库：[https://github.com/Grange007/EESAST-hw2024-MAUICalculator](https://github.com/Grange007/EESAST-hw2024-MAUICalculator) 到个人仓库，按要求修改好后，从个人仓库提pr到原本的仓库，pr信息填写为：`calculator_姓名_班级` （如：`calculator_大佬_无30`）。
+
 ## 截止日期
 
 由zfgg决定
