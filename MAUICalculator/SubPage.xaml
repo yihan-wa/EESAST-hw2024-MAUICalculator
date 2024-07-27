@@ -5,7 +5,7 @@
              Title="Advanced Calculator">
     <VerticalStackLayout>
         <Label 
-            Text="Realize your advanced calculaor here!"
+            Text="Implement your advanced calculaor here!"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
     </VerticalStackLayout>
