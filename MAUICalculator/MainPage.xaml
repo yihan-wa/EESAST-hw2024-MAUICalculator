@@ -1,54 +1,132 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MAUICalculator.MainPage">
+using System;
+using Microsoft.Maui.Controls;
 
-    <!-- 使用Grid作为根布局 -->
-    <Grid RowSpacing="6" ColumnSpacing="6" Margin="20">
+namespace MAUICalculator
+{
+    public partial class MainPage : ContentPage
+    {
+        public MainPage()
+        {
+            InitializeComponent();
+            LoadState();
+        }
 
-        <!-- 设置六行四列的网格 -->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        private void LoadState()
+        {
+            var state = CalculatorState.Instance;
+            displayLabel.Text = state.IsResult ? state.LastNumber.ToString() : state.CurrentNumber.ToString();
+        }
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+        private void OnDeleteClicked(object sender, EventArgs e)
+        {
+            var state = CalculatorState.Instance;
+            if (state.IsResult) displayLabel.Text = "";
+            else
+            {
+                if (state.CurrentOperator != "")
+                {
+                    state.CurrentOperator = "";
+                    displayLabel.Text = state.LastNumber.ToString();
+                }
+                else
+                {
+                    displayLabel.Text = displayLabel.Text.Remove(displayLabel.Text.Length - 1);
+                    if (displayLabel.Text == "") displayLabel.Text += "0";
+                    state.CurrentNumber = double.Parse(displayLabel.Text);
+                }
+            }
+        }
 
-        <!-- 使用Label显示计算结果，并占据第一行四列 -->
-        <Label x:Name="displayLabel" Text="0" FontSize="Large" HorizontalTextAlignment="End" Grid.Row="0" Grid.ColumnSpan="4" />
+        private void OnNumberClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var number = button.Text;
+            var state = CalculatorState.Instance;
 
-        <!-- 使用Button创建键盘按钮，并占据特定的Grid位置，设置Clicked事件处理程序 -->
-        <Button Text="AC" Background="LightSkyBlue" Clicked="OnClearClicked" Grid.Row="1" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="3"/>
-        <Button Text="/" Background="LightSkyBlue" Clicked="OnOperatorClicked" Grid.Row="1" Grid.Column="3"/>
+            if (state.IsResult || displayLabel.Text == "0")
+            {
+                displayLabel.Text = "";
+                if (number == ".")
+                    displayLabel.Text = "0";
+                state.IsResult = false;
+            }
 
-        <Button Text="7" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="2" Grid.Column="0"/>
-        <Button Text="8" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="2" Grid.Column="1"/>
-        <Button Text="9" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="2" Grid.Column="2"/>
-        <Button Text="*" Background="LightSkyBlue" Clicked="OnOperatorClicked" Grid.Row="2" Grid.Column="3"/>
+            displayLabel.Text += number;
+            state.CurrentNumber = double.Parse(displayLabel.Text);
+        }
 
-        <Button Text="4" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="3" Grid.Column="0"/>
-        <Button Text="5" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="3" Grid.Column="1"/>
-        <Button Text="6" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="3" Grid.Column="2"/>
-        <Button Text="-" Background="LightSkyBlue" Clicked="OnOperatorClicked" Grid.Row="3" Grid.Column="3"/>
+        private void OnOperatorClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var op = button.Text;
+            var state = CalculatorState.Instance;
 
-        <Button Text="1" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="4" Grid.Column="0"/>
-        <Button Text="2" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="4" Grid.Column="1"/>
-        <Button Text="3" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="4" Grid.Column="2"/>
-        <Button Text="+" Background="LightSkyBlue" Clicked="OnOperatorClicked" Grid.Row="4" Grid.Column="3"/>
+            if (state.CurrentOperator != "")
+            {
+                if (!state.IsResult)
+                {
+                    Calculate();
+                    displayLabel.Text = state.LastNumber.ToString();
+                    state.IsResult = true;
+                }
+            }
+            else
+            {
+                state.LastNumber = state.CurrentNumber;
+                displayLabel.Text = "0";
+                state.IsResult = false;
+            }
 
-        <Button Text="0" Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"/>
-        <Button Text="." Background="LightSkyBlue" Clicked="OnNumberClicked" Grid.Row="5" Grid.Column="2"/>
-        <Button Text="=" Background="LightSkyBlue" Clicked="OnEqualClicked" Grid.Row="5" Grid.Column="3"/>
+            state.CurrentOperator = op;
+        }
 
-    </Grid>
+        private void OnEqualClicked(object sender, EventArgs e)
+        {
+            var state = CalculatorState.Instance;
+            if (state.CurrentOperator != "")
+            {
+                Calculate();
+                displayLabel.Text = state.LastNumber.ToString();
+                state.CurrentOperator = "";
+                state.IsResult = true;
+            }
+        }
 
-</ContentPage>
+        private void OnClearClicked(object sender, EventArgs e)
+        {
+            var state = CalculatorState.Instance;
+            state.CurrentNumber = 0;
+            state.LastNumber = 0;
+            state.CurrentOperator = "";
+            state.IsResult = false;
+            displayLabel.Text = state.LastNumber.ToString();
+        }
+
+        private void Calculate()
+        {
+            var state = CalculatorState.Instance;
+            switch (state.CurrentOperator)
+            {
+                case "+":
+                    state.LastNumber += state.CurrentNumber;
+                    break;
+                case "-":
+                    state.LastNumber -= state.CurrentNumber;
+                    break;
+                case "*":
+                    state.LastNumber *= state.CurrentNumber;
+                    break;
+                case "/":
+                    state.LastNumber /= state.CurrentNumber;
+                    break;
+            }
+            state.LastNumber = Math.Round(state.LastNumber, 4);
+            state.CurrentNumber = state.LastNumber;
+        }
+
+        private async void OnNavigateToComplexModeClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new SubPage());
+        }
+    }
+}
